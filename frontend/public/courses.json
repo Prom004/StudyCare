@@ -1,0 +1,6 @@
+[
+  { "id": 1, "name": "Mathematics", "code": "MATH 201", "instructor": "Dr. Smith", "credits": 3, "color": "blue", "progress": 85 },
+  { "id": 2, "name": "History", "code": "HIST 101", "instructor": "Prof. Johnson", "credits": 4, "color": "green", "progress": 92 },
+  { "id": 3, "name": "Chemistry", "code": "CHEM 301", "instructor": "Dr. Brown", "credits": 4, "color": "purple", "progress": 78 },
+  { "id": 4, "name": "English", "code": "ENG 102", "instructor": "Prof. Davis", "credits": 3, "color": "orange", "progress": 88 }
+]
