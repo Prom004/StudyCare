@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@keyframes bubble {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-1000px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+.animate-bubble {
+  animation-name: bubble;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
