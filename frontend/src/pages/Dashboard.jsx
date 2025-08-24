@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 import Header from "../components/Header";
 import { API } from "../api";
+import { useNotifications } from "../contexts/NotificationContext";
 
 const Dashboard = ({ user, token }) => {
   const [tasks, setTasks] = useState([]);
   const [courses, setCourses] = useState([]);
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     if (!user || !token) return;
@@ -45,7 +47,6 @@ const Dashboard = ({ user, token }) => {
     ? Math.round(courses.reduce((sum, c) => sum + computeCourseProgress(c), 0) / courses.length)
     : 0;
 
-  // Periodically refresh progress display
   useEffect(() => {
     const id = setInterval(() => setCourses((prev) => [...prev]), 60 * 1000);
     return () => clearInterval(id);
@@ -64,6 +65,8 @@ const Dashboard = ({ user, token }) => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user.name}! 👋</h1>
             <p className="text-gray-600 mt-2">Here's what you have planned for today.</p>
+            
+            
           </div>
 
           {/* Stats Cards */}

@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Target, Menu, X, User, LogOut } from "lucide-react";
+import { Target, Menu, X, User, LogOut, Bell } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNotifications } from "../contexts/NotificationContext";
 
 export default function Header ({ user, setUser, transparent = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
   const currentUser = isAuthPage ? null : user;
+  const { notifications, removeNotification, clearAllNotifications } = useNotifications();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +20,17 @@ export default function Header ({ user, setUser, transparent = false }) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isNotificationsOpen && !event.target.closest('.notifications-dropdown')) {
+        setIsNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isNotificationsOpen]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -44,7 +58,7 @@ export default function Header ({ user, setUser, transparent = false }) {
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <Target className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">StudyScheduler</span>
+            <span className="text-xl font-bold text-gray-900">StudyCare</span>
           </Link>
           
           {/* Desktop Navigation */}
@@ -56,6 +70,110 @@ export default function Header ({ user, setUser, transparent = false }) {
                 <Link to="/tasks" className="text-gray-600 hover:text-blue-600 transition-colors">Tasks</Link>
                 <Link to="/courses" className="text-gray-600 hover:text-blue-600 transition-colors">Courses</Link>
                 <Link to="/calendar" className="text-gray-600 hover:text-blue-600 transition-colors">Calendar</Link>
+                
+                {/* Notification Bell */}
+                <div className="relative notifications-dropdown">
+                  <button 
+                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                    className="text-gray-600 hover:text-blue-600 transition-colors relative"
+                  >
+                    <Bell className="w-5 h-5" />
+                    {notifications.length > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {notifications.length > 9 ? '9+' : notifications.length}
+                      </span>
+                    )}
+                  </button>
+                  
+                  {/* Notifications Dropdown */}
+                  {isNotificationsOpen && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                      <div className="p-4 border-b border-gray-200">
+                        <div className="flex justify-between items-center">
+                          <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                          {notifications.length > 0 && (
+                            <button
+                              onClick={clearAllNotifications}
+                              className="text-sm text-gray-500 hover:text-gray-700 underline"
+                            >
+                              Clear all
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {notifications.length === 0 ? (
+                        <div className="p-6 text-center">
+                          <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                          <p className="text-gray-500">No notifications yet</p>
+                          <p className="text-sm text-gray-400">You'll see important updates here</p>
+                        </div>
+                      ) : (
+                        <div className="p-2">
+                          {notifications.map((notification) => (
+                            <div
+                              key={notification.id}
+                              className={`mb-2 p-3 rounded-lg border transition-all duration-200 ${
+                                notification.type === 'success' ? 'bg-green-50 border-green-200' :
+                                notification.type === 'error' ? 'bg-red-50 border-red-200' :
+                                notification.type === 'warning' ? 'bg-yellow-50 border-yellow-200' :
+                                'bg-blue-50 border-blue-200'
+                              }`}
+                            >
+                              <div className="flex items-start space-x-3">
+                                <div className="flex-shrink-0 mt-0.5">
+                                  {notification.type === 'success' ? (
+                                    <div className="w-4 h-4 text-green-500">✓</div>
+                                  ) : notification.type === 'error' ? (
+                                    <div className="w-4 h-4 text-red-500">✕</div>
+                                  ) : notification.type === 'warning' ? (
+                                    <div className="w-4 h-4 text-yellow-500">⚠</div>
+                                  ) : (
+                                    <div className="w-4 h-4 text-blue-500">ℹ</div>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  {notification.title && (
+                                    <p className={`text-sm font-medium ${
+                                      notification.type === 'success' ? 'text-green-800' :
+                                      notification.type === 'error' ? 'text-red-800' :
+                                      notification.type === 'warning' ? 'text-yellow-800' :
+                                      'text-blue-800'
+                                    }`}>
+                                      {notification.title}
+                                    </p>
+                                  )}
+                                  {notification.message && (
+                                    <p className={`text-sm ${
+                                      notification.type === 'success' ? 'text-green-700' :
+                                      notification.type === 'error' ? 'text-red-700' :
+                                      notification.type === 'warning' ? 'text-yellow-700' :
+                                      'text-blue-700'
+                                    } mt-1`}>
+                                      {notification.message}
+                                    </p>
+                                  )}
+                                  {notification.timestamp && (
+                                    <p className="text-xs text-gray-500 mt-2">
+                                      {notification.timestamp.toLocaleTimeString()}
+                                    </p>
+                                  )}
+                                </div>
+                                <button
+                                  onClick={() => removeNotification(notification.id)}
+                                  className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
                 <div className="relative group">
                   <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
                     <User className="w-4 h-4" />

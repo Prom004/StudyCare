@@ -7,19 +7,19 @@ export default function Testimonials() {
 
     const testimonials = [
     {
-      name: "Sarah Chen",
+      name: "Promise Izere Ineza",
       role: "Computer Science Student",
       text: "This app completely transformed how I manage my coursework. I never miss deadlines anymore!",
       rating: 5
     },
     {
-      name: "Michael Rodriguez",
+      name: "Michael",
       role: "Business Major",
       text: "Simple, clean, and exactly what I needed. Finally, a study planner that doesn't overwhelm me.",
       rating: 5
     },
     {
-      name: "Emma Thompson",
+      name: "Thompson",
       role: "Psychology Student",
       text: "The dashboard view is perfect. I can see everything I need to do at a glance.",
       rating: 5
@@ -28,22 +28,7 @@ export default function Testimonials() {
 
   return (
     <section className="relative bg-white py-20 overflow-hidden">
-      {/* Background bubbles */}
-      <div className="absolute inset-0 -z-10">
-        {Array.from({ length: 15 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-blue-200 opacity-30 animate-bubble"
-            style={{
-              width: `${Math.random() * 40 + 10}px`,
-              height: `${Math.random() * 40 + 10}px`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${Math.random() * 10 + 5}s`,
-            }}
-          ></div>
-        ))}
-      </div>
+     
 
       {/* Content */}
       <div className="max-w-6xl mx-auto text-center">

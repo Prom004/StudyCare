@@ -14,16 +14,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/tasks", taskRoutes);
 
-// Sync database (auto-migrate in dev)
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ force: true }).then(() => {
     console.log("Database synced");
 
-    // Email Scheduler
     cron.schedule("0 8 * * *", async () => {
         console.log("Running daily task reminders...");
         try {

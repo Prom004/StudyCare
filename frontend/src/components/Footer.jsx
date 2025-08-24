@@ -51,7 +51,7 @@ export default function Footer() {
           </div>
           
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 StudyScheduler. All rights reserved.</p>
+            <p>&copy; 2024 StudyCare. All rights reserved.</p>
           </div>
         </div>
       </footer>

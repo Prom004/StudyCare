@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import LandingPage from './pages/LandingPage'
 import ProfilePage from './pages/ProfilePage'
@@ -12,6 +12,18 @@ import Footer from './components/Footer'
 import { useEffect, useState } from 'react'
 import { API } from './api'
 import ProtectedRoute from './components/ProtectedRoute'
+import { NotificationProvider } from './contexts/NotificationContext'
+
+function ConditionalFooter({ user }) {
+  const location = useLocation();
+  const hideFooterPaths = ['/login', '/signup'];
+  
+  if (hideFooterPaths.includes(location.pathname) || user) {
+    return null;
+  }
+  
+  return <Footer />;
+}
 
 function App() {
 
@@ -30,7 +42,6 @@ function App() {
         const me = await API.me(token);
         setUser(me);
       } catch (e) {
-        // Do not clear token on transient errors; user can retry later
         setUser(null);
       } finally {
         setInitializing(false);
@@ -41,23 +52,25 @@ function App() {
 
 
   return (
-    <Router>
+    <NotificationProvider>
+      <Router>
         <Header user={user} setUser={setUser} />
-      <div className="min-h-screen bg-white">
-        <Routes>
-          <Route path="/" element={<LandingPage user={user} setUser={setUser} />} />
-          <Route path="/login" element={<LoginPage setUser={setUser} setToken={setToken} />} />
-          <Route path="/signup" element={<SignupPage setUser={setUser} setToken={setToken} />} />
-          <Route path="/dashboard" element={<ProtectedRoute user={user} initializing={initializing}><Dashboard user={user} token={token} /></ProtectedRoute>} />
-          <Route path="/tasks" element={<ProtectedRoute user={user} initializing={initializing}><TasksPage user={user} token={token} /></ProtectedRoute>} />
-          <Route path="/courses" element={<ProtectedRoute user={user} initializing={initializing}><CoursesPage user={user} token={token} /></ProtectedRoute>} />
-          <Route path="/calendar" element={<ProtectedRoute user={user} initializing={initializing}><CalendarPage user={user} token={token} /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute user={user} initializing={initializing}><ProfilePage user={user} setUser={setUser} /></ProtectedRoute>} />
-          <Route path="/forgot-password" element={<div className="pt-24 min-h-screen bg-gray-50 flex items-center justify-center"><div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-md w-full text-center"><h1 className="text-xl font-semibold text-gray-900 mb-2">Forgot Password</h1><p className="text-gray-600">This feature is not available yet. Please contact support or try signing up again with a different email.</p></div></div>} />
-        </Routes>
-      </div>
-        <Footer />
-    </Router>
+        <div className="min-h-screen bg-white">
+          <Routes>
+            <Route path="/" element={<LandingPage user={user} setUser={setUser} />} />
+            <Route path="/login" element={<LoginPage setUser={setUser} setToken={setToken} />} />
+            <Route path="/signup" element={<SignupPage setUser={setUser} setToken={setToken} />} />
+            <Route path="/dashboard" element={<ProtectedRoute user={user} initializing={initializing}><Dashboard user={user} token={token} /></ProtectedRoute>} />
+            <Route path="/tasks" element={<ProtectedRoute user={user} initializing={initializing}><TasksPage user={user} token={token} /></ProtectedRoute>} />
+            <Route path="/courses" element={<ProtectedRoute user={user} initializing={initializing}><CoursesPage user={user} token={token} /></ProtectedRoute>} />
+            <Route path="/calendar" element={<ProtectedRoute user={user} initializing={initializing}><CalendarPage user={user} token={token} /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute user={user} initializing={initializing}><ProfilePage user={user} setUser={setUser} /></ProtectedRoute>} />
+            <Route path="/forgot-password" element={<div className="pt-24 min-h-screen bg-gray-50 flex items-center justify-center"><div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-md w-full text-center"><h1 className="text-xl font-semibold text-gray-900 mb-2">Forgot Password</h1><p className="text-gray-600">This feature is not available yet. Please contact support or try signing up again with a different email.</p></div></div>} />
+          </Routes>
+        </div>
+        <ConditionalFooter user={user} />
+      </Router>
+    </NotificationProvider>
   );
   
 }
