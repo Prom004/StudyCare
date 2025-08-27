@@ -1,80 +1,101 @@
-const sequelize = require("./config/database");
-const User = require("./models/User");
-const Course = require("./models/Course");
-const Task = require("./models/Task");
-const Notification = require("./models/Notification");
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+
+const dbPath = path.join(__dirname, 'database.sqlite');
+
+const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
+    if (err) {
+        console.error('❌ Error opening database:', err.message);
+        return;
+    }
+    console.log('✅ Connected to SQLite database successfully!');
+});
 
 async function viewDatabase() {
     try {
-        // Test connection
-        await sequelize.authenticate();
-        console.log("✅ Database connection successful!");
-
-        // Get table info
-        const [results] = await sequelize.query("SELECT name FROM sqlite_master WHERE type='table';");
-        console.log("\n📋 Available tables:", results.map(r => r.name));
-
-        // View Users
-        console.log("\n👥 USERS:");
-        const users = await User.findAll({ raw: true });
-        if (users.length > 0) {
-            users.forEach(user => {
-                console.log(`- ${user.name} (${user.email}) - Created: ${user.createdAt}`);
-            });
-        } else {
-            console.log("No users found");
+        console.log('\n📋 Available tables:');
+        const tables = await queryDatabase("SELECT name FROM sqlite_master WHERE type='table';");
+        if (tables.length === 0) {
+            console.log('No tables found in database');
+            return;
         }
-
-        // View Courses
-        console.log("\n📚 COURSES:");
-        const courses = await Course.findAll({ 
-            include: [{ model: User, attributes: ['name'] }],
-            raw: true 
+        
+        tables.forEach(table => {
+            console.log(`- ${table.name}`);
         });
-        if (courses.length > 0) {
-            courses.forEach(course => {
-                console.log(`- ${course.name} (${course.code}) - Due: ${course.deadline} - User: ${course['User.name']}`);
-            });
-        } else {
-            console.log("No courses found");
-        }
 
-        // View Tasks
-        console.log("\n✅ TASKS:");
-        const tasks = await Task.findAll({ 
-            include: [
-                { model: User, attributes: ['name'] },
-                { model: Course, attributes: ['name'] }
-            ],
-            raw: true 
-        });
-        if (tasks.length > 0) {
-            tasks.forEach(task => {
-                console.log(`- ${task.title} - Due: ${task.due_date} - Priority: ${task.priority} - Completed: ${task.completed} - Course: ${task['Course.name']} - User: ${task['User.name']}`);
-            });
-        } else {
-            console.log("No tasks found");
-        }
-
-        // View Notifications
-        console.log("\n🔔 NOTIFICATIONS:");
-        const notifications = await Notification.findAll({ 
-            include: [{ model: User, attributes: ['name'] }],
-            raw: true 
-        });
-        if (notifications.length > 0) {
-            notifications.forEach(notification => {
-                console.log(`- ${notification.title}: ${notification.message} - Type: ${notification.type} - Priority: ${notification.priority} - Read: ${notification.is_read} - User: ${notification['User.name']}`);
-            });
-        } else {
-            console.log("No notifications found");
+        for (const table of tables) {
+            await viewTableData(table.name);
         }
 
     } catch (error) {
-        console.error("❌ Error viewing database:", error);
+        console.error('❌ Error viewing database:', error);
     } finally {
-        await sequelize.close();
+        db.close((err) => {
+            if (err) {
+                console.error('❌ Error closing database:', err.message);
+            } else {
+                console.log('\n✅ Database connection closed');
+            }
+        });
     }
+}
+
+async function viewTableData(tableName) {
+    try {
+        console.log(`\n📊 TABLE: ${tableName.toUpperCase()}`);
+        console.log('='.repeat(50));
+        
+        const schema = await queryDatabase(`PRAGMA table_info(${tableName});`);
+        console.log('Schema:');
+        schema.forEach(col => {
+            console.log(`  ${col.name} (${col.type}) ${col.notnull ? 'NOT NULL' : ''} ${col.pk ? 'PRIMARY KEY' : ''}`);
+        });
+        
+        const countResult = await queryDatabase(`SELECT COUNT(*) as count FROM ${tableName};`);
+        const rowCount = countResult[0].count;
+        console.log(`\nTotal rows: ${rowCount}`);
+        
+        if (rowCount === 0) {
+            console.log('No data found');
+            return;
+        }
+        
+        const limit = Math.min(10, rowCount);
+        const data = await queryDatabase(`SELECT * FROM ${tableName} LIMIT ${limit};`);
+        
+        console.log(`\nSample data (showing ${limit} rows):`);
+        data.forEach((row, index) => {
+            console.log(`\nRow ${index + 1}:`);
+            Object.entries(row).forEach(([key, value]) => {
+                let displayValue = value;
+                if (value === null) displayValue = 'NULL';
+                else if (typeof value === 'string' && value.length > 50) {
+                    displayValue = value.substring(0, 50) + '...';
+                }
+                console.log(`  ${key}: ${displayValue}`);
+            });
+        });
+        
+        if (rowCount > limit) {
+            console.log(`\n... and ${rowCount - limit} more rows`);
+        }
+        
+    } catch (error) {
+        console.error(`❌ Error viewing table ${tableName}:`, error.message);
+    }
+}
+
+function queryDatabase(sql) {
+    return new Promise((resolve, reject) => {
+        db.all(sql, [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows || []);
+            }
+        });
+    });
 }
 
 viewDatabase();

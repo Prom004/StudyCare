@@ -1,6 +1,5 @@
 import React from "react";
 import { Star } from "lucide-react";
-// import './index.css'
 
 export default function Testimonials() {
 
@@ -30,7 +29,6 @@ export default function Testimonials() {
     <section className="relative bg-white py-20 overflow-hidden">
      
 
-      {/* Content */}
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="text-3xl font-bold text-gray-900">
           Loved by Students Everywhere
@@ -39,7 +37,6 @@ export default function Testimonials() {
           Join thousands of students who have transformed their academic life.
         </p>
 
-        {/* Testimonial cards */}
         <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
               <div key={index} className="bg-gray-50 p-6 rounded-xl">

@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom"
 import Header from "../components/Header";
 import { API } from "../api";
-import { useNotifications } from "../contexts/NotificationContext";
+// import { useNotifications } from "../contexts/NotificationContext";
 
 const Dashboard = ({ user, token }) => {
   const [tasks, setTasks] = useState([]);
   const [courses, setCourses] = useState([]);
-  const { addNotification } = useNotifications();
+  // const { addNotification } = useNotifications();
 
   useEffect(() => {
     if (!user || !token) return;
@@ -61,7 +61,6 @@ const Dashboard = ({ user, token }) => {
       <Header user={user} />
       <div className="pt-24 min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user.name}! 👋</h1>
             <p className="text-gray-600 mt-2">Here's what you have planned for today.</p>
@@ -69,7 +68,6 @@ const Dashboard = ({ user, token }) => {
             
           </div>
 
-          {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
               <div className="flex items-center">
@@ -121,7 +119,6 @@ const Dashboard = ({ user, token }) => {
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Upcoming Tasks */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -150,7 +147,6 @@ const Dashboard = ({ user, token }) => {
               </div>
             </div>
 
-            {/* Course Progress */}
             <div>
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -177,7 +173,6 @@ const Dashboard = ({ user, token }) => {
                 </div>
               </div>
 
-              {/* Quick Actions */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
                 <div className="space-y-3">
